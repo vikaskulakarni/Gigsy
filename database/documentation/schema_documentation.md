@@ -1,6 +1,6 @@
 # Gigsy schema reference
 
-Source: user-provided structure-only MySQL dump, server version 8.0.46. The dump contains 16 base tables, 3 views, 1 trigger and 1 stored procedure.
+Source: user-provided structure-only MySQL dump (MySQL 8.0.46), cross-checked against the project team's live database inspection. The schema contains **17 base tables, 3 views, 1 trigger and 1 stored procedure**.
 
 ## Base tables
 
@@ -26,20 +26,26 @@ Source: user-provided structure-only MySQL dump, server version 8.0.46. The dump
 
 ## Views
 
-- freelancer_profile_view joins users and freelancer.
-- freelancer_skills_view joins freelancer, users, freelancer_skill and skill.
-- open_gigs_view joins gig, client and users and filters status = Open.
+- `freelancer_profile_view` joins users and freelancer.
+- `freelancer_skills_view` joins freelancer, users, freelancer_skill and skill.
+- `open_gigs_view` joins gig, client and users and filters status = Open.
+
+All three views were inspected and queried successfully against the project database.
 
 ## Stored program objects
 
-- Procedure MatchFreelancersBySkills(input_gig_id): counts a freelancer's overlap with Required gig skills and sorts descending by matched skill count.
-- Trigger trg_update_freelancer_rating: AFTER INSERT on review; recalculates average_rating and total_reviews for the reviewed freelancer.
-- No stored function or scheduled event was present in the supplied dump. A candidate additional function is provided in advanced_features.sql.
+- **Procedure `MatchFreelancersBySkills(input_gig_id)`:** counts each freelancer's overlap with the gig's required skills and sorts by matched skill count. It was executed with gig ID 2 and returned freelancer ID 3 (Rohan Gupta), with two matched required skills.
+- **Trigger `trg_update_freelancer_rating`:** AFTER INSERT on `review`; recalculates the reviewed freelancer's `average_rating` and `total_reviews`. Its behavior was tested inside a transaction: the aggregate changed from 0.00/0 to 5.00/1 after inserting a test review, and returned to 0.00/0 after rollback. No test review was retained.
+- **Stored function:** no stored function or scheduled event was present in the supplied dump or installed in the inspected database. A candidate function is documented in `advanced_features.sql` as optional and is not part of the verified implementation.
 
 ## Integrity rules visible in the export
 
 CHECK constraints cover positive bid/contract/payment amounts, rating range 1–5, nonnegative experience and hourly rate, valid budget range, and positive estimated delivery days. The proposal composite unique key prevents duplicate applications to the same gig.
 
-## Important limitation
+## Live database observations and limitations
 
-The dump is schema-only. AUTO_INCREMENT values show counters, not row counts. It cannot establish the number or correctness of live records. The schema export also does not prove that application code and database are currently synchronized after the export timestamp.
+The team inspected the live database and confirmed 17 base tables, 3 views, the procedure and trigger described above. The procedure, trigger and views were executed successfully. The trigger test was rolled back, leaving no test review row.
+
+The database contains two generations of workflow tables. The legacy `contract`, `order_milestone`, `payment`, `review` and `notification` tables coexist with the current application tables `gigsy_contracts`, `gigsy_milestones` and `gigsy_notifications`. Document and interpret these groups separately. The three `gigsy_*` tables do not declare foreign keys in the supplied export; do not imply otherwise.
+
+The schema dump is structure-only. AUTO_INCREMENT values are counters, not row counts. The live database was separately inspected for the implementation checks described above.
