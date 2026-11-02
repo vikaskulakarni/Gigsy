@@ -1,0 +1,44 @@
+erDiagram
+    USERS ||--o| CLIENT : "has client profile"
+    USERS ||--o| FREELANCER : "has freelancer profile"
+    CLIENT ||--o{ GIG : posts
+    FREELANCER ||--o{ PROPOSAL : submits
+    GIG ||--o{ PROPOSAL : receives
+    FREELANCER ||--o{ FREELANCER_SKILL : lists
+    SKILL ||--o{ FREELANCER_SKILL : classifies
+    GIG ||--o{ GIG_SKILL : requires
+    SKILL ||--o{ GIG_SKILL : classifies
+    PROPOSAL ||--o| CONTRACT : "may create legacy contract"
+    USERS ||--o{ MESSAGE : sends
+    USERS ||--o{ MESSAGE : receives
+    USERS ||--o{ NOTIFICATION : receives
+    CONTRACT ||--o{ ORDER_MILESTONE : contains
+    CONTRACT ||--o{ PAYMENT : has
+    ORDER_MILESTONE o|--o{ PAYMENT : "may be paid by"
+    CONTRACT ||--o| REVIEW : receives
+    CLIENT ||--o{ REVIEW : writes
+    FREELANCER ||--o{ REVIEW : receives
+    PROPOSAL ||--o| GIGSY_CONTRACTS : "logical reference"
+    GIG ||--o| GIGSY_CONTRACTS : "unique logical reference"
+    FREELANCER ||--o{ GIGSY_CONTRACTS : "logical reference"
+    CLIENT ||--o{ GIGSY_CONTRACTS : "logical reference"
+    GIGSY_CONTRACTS ||--o{ GIGSY_MILESTONES : contains
+    USERS ||--o{ GIGSY_NOTIFICATIONS : "logical reference"
+
+    USERS { int user_id PK; varchar name; varchar email UK; enum user_type }
+    CLIENT { int client_id PK; int user_id FK; varchar company_name }
+    FREELANCER { int freelancer_id PK; int user_id FK; varchar headline; decimal average_rating }
+    GIG { int gig_id PK; int client_id FK; varchar title; enum status }
+    PROPOSAL { int proposal_id PK; int gig_id FK; int freelancer_id FK; decimal bid_amount; enum status }
+    SKILL { int skill_id PK; varchar skill_name UK }
+    FREELANCER_SKILL { int freelancer_id PK,FK; int skill_id PK,FK; enum proficiency_level }
+    GIG_SKILL { int gig_id PK,FK; int skill_id PK,FK; enum importance }
+    CONTRACT { int contract_id PK; int proposal_id FK,UK; int gig_id FK; int freelancer_id FK; decimal agreed_amount }
+    ORDER_MILESTONE { int milestone_id PK; int contract_id FK; decimal amount; enum status }
+    PAYMENT { int payment_id PK; int contract_id FK; int milestone_id FK; decimal amount; enum payment_status }
+    REVIEW { int review_id PK; int contract_id FK,UK; int client_id FK; int freelancer_id FK; tinyint rating }
+    MESSAGE { int message_id PK; int sender_id FK; int receiver_id FK; int gig_id FK; int proposal_id FK }
+    NOTIFICATION { int notification_id PK; int user_id FK; enum notification_type }
+    GIGSY_CONTRACTS { bigint contract_id PK; bigint proposal_id; bigint gig_id; bigint freelancer_id; bigint client_id }
+    GIGSY_MILESTONES { bigint milestone_id PK; bigint contract_id; varchar title; decimal amount; varchar status }
+    GIGSY_NOTIFICATIONS { bigint notification_id PK; bigint user_id; varchar type; bigint gig_id; bigint contract_id }
