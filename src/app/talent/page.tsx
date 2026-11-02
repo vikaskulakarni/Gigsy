@@ -1,0 +1,1 @@
+import {Header} from "@/components/Header";import {Footer} from "@/components/Footer";import {TalentDirectory} from "@/components/TalentDirectory";export default function TalentPage(){return <><Header/><TalentDirectory/><Footer/></>;}

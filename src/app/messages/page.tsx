@@ -1,0 +1,1 @@
+import {Header} from "@/components/Header";import {Footer} from "@/components/Footer";import {MessagesWorkspace} from "@/components/MessagesWorkspace";export default function Messages(){return <><Header/><MessagesWorkspace/><Footer/></>;}

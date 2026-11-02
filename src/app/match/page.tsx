@@ -1,0 +1,1 @@
+import {Header} from "@/components/Header";import {Footer} from "@/components/Footer";import {SemanticMatch} from "@/components/SemanticMatch";export default function MatchPage(){return <><Header/><main className="container inner-page"><SemanticMatch/></main><Footer/></>;}
