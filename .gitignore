@@ -1,33 +1,36 @@
-node_modules
-.next
-out
-.env*
-.DS_Store
-
-semantic_service/.venv/
-semantic_service/chroma_data/
-semantic_service/.env
-!.env.example
+# Dependencies and build output
 node_modules/
 .next/
 out/
-*.pyc
+dist/
+coverage/
+
+# Python environments and caches
+.venv/
+**/.venv/
 __pycache__/
-*.pem
-*.key
+*.py[cod]
+.pytest_cache/
+
+# Environment files (keep only safe examples)
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Local databases, vector stores and generated data
 *.sqlite
+*.sqlite3
 *.db
+semantic_service/chroma_data/
 
 # Local backups and diagnostics
+*.bak
 final_repair_backup/
 gig_detail_repair_backup/
-*.bak
 gigsy-build-audit.txt
 
-# Local environment and generated data
-.env
-.env.local
-.env.development.local
-.env.production.local
-node_modules/
-.next/
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
