@@ -17,3 +17,17 @@ __pycache__/
 *.key
 *.sqlite
 *.db
+
+# Local backups and diagnostics
+final_repair_backup/
+gig_detail_repair_backup/
+*.bak
+gigsy-build-audit.txt
+
+# Local environment and generated data
+.env
+.env.local
+.env.development.local
+.env.production.local
+node_modules/
+.next/
