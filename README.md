@@ -102,10 +102,17 @@ Gigsy/
 │   ├── workflows/
 │   └── pull_request_template.md
 ├── database/
+│   ├── advanced_features.sql
+│   ├── dml_examples.sql
+│   ├── er_diagram.mmd
 │   ├── gigsy_hiring_workflow.sql
-│   └── messaging.sql
+│   ├── messaging.sql
+│   ├── query_bank.sql
+│   ├── relational_mapping.md
+│   └── schema_documentation.md
 ├── docs/
 │   ├── architecture.md
+│   ├── dbms-feature-matrix.md
 │   ├── backend-and-api.md
 │   ├── hiring-workflow.md
 │   ├── semantic-search.md
@@ -270,6 +277,19 @@ npm run build
 GitHub Actions runs the TypeScript check on pushes and pull requests targeting `main`. A passing typecheck is not a substitute for testing MySQL migrations, authentication, semantic search, and Client/Freelancer workflows locally.
 
 ## Documentation
+
+### Database / DBMS deliverables
+- [Schema reference](database/schema_documentation.md)
+- [ER diagram source (Mermaid)](database/er_diagram.mmd)
+- [ER-to-relational mapping](database/relational_mapping.md)
+- [SQL query bank](database/query_bank.sql)
+- [DML examples](database/dml_examples.sql)
+- [Advanced SQL feature script](database/advanced_features.sql)
+- [DBMS feature evidence and validation status](docs/dbms-feature-matrix.md)
+- [Teammate testing and screenshot handoff](docs/team-testing-handoff.md)
+
+The schema reference is based on a structure-only MySQL export. It documents both the legacy contract/payment/review tables and the current `gigsy_*` hiring workflow. Do not import the schema dump as a migration.
+
 
 - [Windows setup](docs/windows-setup.md)
 - [Architecture overview](docs/architecture.md)
