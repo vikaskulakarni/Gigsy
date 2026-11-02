@@ -1,0 +1,23 @@
+GIGSY — WINDOWS QUICK START
+
+1. Open PowerShell in the repository root.
+2. Run:
+
+Set-ExecutionPolicy -Scope Process Bypass -Force
+.\scripts\windows\RUN_GIGSY.ps1
+
+Prerequisites:
+- Node.js 22 LTS
+- Python 3.11 or 3.13 (64-bit) and py launcher
+- MySQL Server with the existing Gigsy database
+- Internet access for dependency installation and initial embedding model download
+
+The launcher performs local setup if needed, starts the semantic service and Next.js in separate PowerShell windows, and prints the service URLs.
+
+URLs:
+- App: http://localhost:3000
+- MySQL health: http://localhost:3000/api/health
+- Semantic health: http://localhost:8001/health
+
+Keep both service windows open. Do not commit .env.local or semantic_service/.env.
+Do not delete or recreate the existing database.
