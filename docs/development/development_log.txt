@@ -1,0 +1,39 @@
+GIGSY - DEVELOPMENT LOG
+
+Developer: Shrinivas
+
+PROJECT ACTIVITIES
+
+1. Application Testing
+- Tested client and freelancer login.
+- Verified gig creation and publishing.
+- Tested gig discovery.
+- Verified proposal submission and acceptance.
+
+2. Contract Management
+- Tested contract creation.
+- Verified milestone creation.
+- Tested milestone submission and approval.
+- Verified project completion.
+
+3. Communication
+- Tested client and freelancer messaging.
+- Verified message storage in the database.
+
+4. Database Testing
+- Verified gig and proposal records.
+- Checked contract and milestone records.
+- Executed the freelancer skill matching procedure.
+- Verified database views.
+
+5. Evidence Collection
+- Organized application screenshots.
+- Collected database testing screenshots.
+- Created the evidence ZIP archive.
+
+FUTURE IMPROVEMENTS
+- Add automated API tests.
+- Improve messaging associations.
+- Test positive skill matching.
+- Test review rating updates.
+- Improve project documentation.
