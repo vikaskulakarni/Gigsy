@@ -2,11 +2,23 @@
 
 **AI-powered freelance marketplace** built with Next.js 15, React 19, TypeScript, MySQL, FastAPI, Sentence Transformers and ChromaDB.
 
-Gigsy supports two roles:
-- **Clients:** publish gigs, review proposals, hire freelancers and manage contracts/milestones.
-- **Freelancers:** discover gigs, search semantically, submit proposals, manage contracts and track milestones.
+Gigsy connects clients who need work completed with freelancers who offer their skills. It supports gig publishing, semantic discovery, proposals, hiring, contracts, milestones and communication.
 
-MySQL is the source of truth for marketplace and transactional data. ChromaDB stores vector representations used for semantic discovery.
+## Project highlights
+
+- **Client workflow:** publish gigs, review proposals, hire freelancers and manage contracts and milestones.
+- **Freelancer workflow:** discover gigs, search semantically, submit proposals, communicate with clients and track milestone progress.
+- **Semantic discovery:** FastAPI, Sentence Transformers and ChromaDB provide vector-based gig discovery.
+- **Marketplace data:** MySQL stores user, gig, proposal, contract and related transactional records.
+
+## Technology stack
+
+| Layer | Technologies |
+|---|---|
+| Frontend | Next.js 15, React 19, TypeScript |
+| Database | MySQL |
+| Semantic search service | FastAPI, Sentence Transformers, ChromaDB |
+| Development checks | TypeScript, npm |
 
 ## Repository structure
 
@@ -18,17 +30,11 @@ Gigsy/
 │   ├── components/          # Reusable UI
 │   └── lib/                 # Auth, database and shared utilities
 ├── semantic_service/        # FastAPI + ChromaDB + embeddings
-├── database/
-│   ├── diagrams/            # ER diagram source
-│   ├── documentation/       # Schema and relational mapping
-│   ├── migrations/          # Additive database migrations
-│   └── queries/              # Query bank and optional SQL examples
-├── docs/
-│   ├── architecture/        # Architecture and API docs
-│   ├── database/            # DBMS and hiring workflow docs
-│   ├── setup/               # Local setup and semantic search
-│   └── testing/             # Test handoff and evidence
+├── database/                # Schema docs, migrations, diagrams and queries
+├── docs/                    # Architecture, setup, database and testing docs
 ├── scripts/windows/         # Windows setup and launch scripts
+├── Gigsy_Evidence/          # Application and DBMS testing screenshots
+├── Report/                  # DBMS mini-project report
 ├── .env.example
 ├── package.json
 ├── package-lock.json
@@ -38,9 +44,9 @@ Gigsy/
 
 ## Quick start (Windows)
 
-Prerequisites: Node.js 22 LTS, Python 3.11 or 3.13 (64-bit), MySQL Server and the existing Gigsy database.
+**Prerequisites:** Node.js 22 LTS, Python 3.11 or 3.13 (64-bit), MySQL Server and the configured Gigsy database.
 
-From the repository root:
+From the repository root, run:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
@@ -59,9 +65,22 @@ The launcher creates local environment files only when setup is needed. Never co
 | MySQL health via Next.js | http://localhost:3000/api/health |
 | FastAPI / ChromaDB health | http://localhost:8001/health |
 
-## Database safety
+## Testing and evidence
 
-Review migrations before applying them. The hiring migration is additive; do not recreate or drop an existing database. Use a backup and a separate test database for experiments. The schema-only export is documentation, not a migration.
+The recorded end-to-end checks exercised client and freelancer login, gig publishing and discovery, proposal submission and acceptance, contract creation, milestone submission and approval, and client–freelancer messaging.
+
+Database checks verified records for the tested gig, proposal, contract, milestones and messages. The `MatchFreelancersBySkills` procedure was executed, and the project's database views and review trigger were checked for existence.
+
+**Testing limitations:** positive skill matching was not independently validated; the review trigger's execution behaviour was not independently tested; message rows had NULL `gig_id` and `proposal_id`; and a milestone-start role error occurred intermittently. These items require further investigation and are not represented as passed tests.
+
+Screenshots are organized in [Gigsy_Evidence](Gigsy_Evidence/). The testing archive is available as [Gigsy_Evidence.zip](Gigsy_Evidence.zip).
+
+## Project report
+
+The DBMS mini-project report is available in both formats:
+
+- [Word report](Report/Gigsy_DBMS_Mini_Project_Report.docx)
+- [PDF report](Report/Gigsy_DBMS_Mini_Project_Report.pdf)
 
 ## Documentation
 
@@ -90,6 +109,10 @@ npm run build
 ```
 
 GitHub Actions currently performs the TypeScript check. Local database, authentication, semantic-search and role workflows still require runtime testing.
+
+## Database safety
+
+Review migrations before applying them. Do not recreate or drop an existing database. Use a backup and a separate test database for experiments. The schema-only export is documentation, not a migration.
 
 ## Security
 
