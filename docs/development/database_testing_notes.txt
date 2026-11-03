@@ -1,0 +1,41 @@
+GIGSY - DATABASE TESTING NOTES
+
+DATABASE: gigsy
+DBMS: MySQL
+
+1. TABLE VERIFICATION
+- Verified gig records.
+- Verified proposal records.
+- Verified contract records.
+- Verified milestone records.
+- Verified communication messages.
+
+2. STORED PROCEDURE
+Name: MatchFreelancersBySkills
+
+- Executed the stored procedure.
+- Verified that it returned a freelancer result.
+- Positive skill matching requires further testing.
+
+3. DATABASE VIEWS
+- freelancer_profile_view
+- freelancer_skills_view
+- open_gigs_view
+
+Verified that the views exist.
+
+4. DATABASE TRIGGER
+Name: trg_update_freelancer_rating
+
+Verified trigger existence.
+Functional execution requires further testing.
+
+5. TEST OBSERVATIONS
+- One gig record was verified.
+- One accepted proposal was verified.
+- One completed contract was verified.
+- Three completed milestones were verified.
+- Two messages were verified.
+
+NOTE
+The database used was a reconstructed testing database. The original database was not modified.

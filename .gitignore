@@ -34,6 +34,3 @@ gigsy-build-audit.txt
 .DS_Store
 Thumbs.db
 .vscode/
-
-# TypeScript incremental build cache
-*.tsbuildinfo
