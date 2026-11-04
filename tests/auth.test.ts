@@ -85,6 +85,44 @@ describe("session helpers", () => {
     });
   });
 
+  it("includes only the required session fields", () => {
+    const token = createSession({
+      ...clientUser,
+      password_hash: "scrypt:secret",
+      extra: "not-for-session",
+    } as typeof clientUser & { password_hash: string; extra: string });
+    const [payload] = token.split(".");
+
+    expect(JSON.parse(Buffer.from(payload, "base64url").toString())).toEqual({
+      ...clientUser,
+      exp: expect.any(Number),
+    });
+  });
+
+  it("fails safely when production has no session secret", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("SESSION_SECRET", "");
+
+    expect(() => createSession(clientUser)).toThrow(
+      "SESSION_SECRET is required in production",
+    );
+  });
+
+  it("accepts a configured production session secret", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("SESSION_SECRET", "configured-production-secret");
+
+    expect(() => createSession(clientUser)).not.toThrow();
+  });
+
+  it("continues to support the development fallback secret", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("SESSION_SECRET", "");
+    const token = createSession(clientUser);
+
+    expect(readSession(token)).toMatchObject(clientUser);
+  });
+
   it.each([clientUser, freelancerUser])(
     "reads a valid %s session",
     (user) => {
@@ -143,18 +181,25 @@ describe("session helpers", () => {
     expect(readSession(`${payload}.${signPayload(payload)}`)).toBeNull();
   });
 
-  it("does not currently validate required fields or supported roles", () => {
-    const token = createSignedPayload({
-      user_id: "not-a-number",
+  it.each([
+    ["missing user ID", { name: clientUser.name, email: clientUser.email, user_type: "Client" }],
+    ["invalid user ID", { user_id: 0, name: clientUser.name, email: clientUser.email, user_type: "Client" }],
+    ["missing name", { user_id: clientUser.user_id, email: clientUser.email, user_type: "Client" }],
+    ["missing email", { user_id: clientUser.user_id, name: clientUser.name, user_type: "Client" }],
+    ["unsupported role", { user_id: clientUser.user_id, name: clientUser.name, email: clientUser.email, user_type: "Admin" }],
+  ])("rejects a session with %s", (_case, payload) => {
+    expect(readSession(createSignedPayload({
+      ...payload,
       exp: Date.now() + 60_000,
-      user_type: "Unsupported",
-    });
+    }))).toBeNull();
+  });
 
-    expect(readSession(token)).toEqual({
-      user_id: "not-a-number",
-      exp: expect.any(Number),
-      user_type: "Unsupported",
-    });
+  it("rejects a session with a non-safe user ID", () => {
+    expect(readSession(createSignedPayload({
+      ...clientUser,
+      user_id: Number.MAX_SAFE_INTEGER + 1,
+      exp: Date.now() + 60_000,
+    }))).toBeNull();
   });
 });
 

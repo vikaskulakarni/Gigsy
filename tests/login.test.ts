@@ -88,7 +88,12 @@ describe("POST /api/auth/login", () => {
         "correct password",
         user.password_hash,
       );
-      expect(authMock.createSession).toHaveBeenCalledWith(user);
+      expect(authMock.createSession).toHaveBeenCalledWith({
+        user_id: user.user_id,
+        name: user.name,
+        email: user.email,
+        user_type: user.user_type,
+      });
     },
   );
 
