@@ -68,7 +68,7 @@ export async function POST(req: Request) {
     const cover = String(body.coverLetter || "").trim();
     const days = Number(body.estimatedDays || 7);
     if (!Number.isInteger(gigId) || gigId < 1 || !Number.isFinite(bid) || bid <= 0 || !cover || !Number.isInteger(days) || days < 1 || days > 365) {
-      return NextResponse.json({ success: false, message: "Provide a valid budget, proposal and delivery estimate (1â€“365 days)." }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Provide a valid budget, proposal and delivery estimate (1-365 days)." }, { status: 400 });
     }
     const [freelancers] = await pool.execute("SELECT freelancer_id FROM freelancer WHERE user_id=? LIMIT 1", [user.user_id]);
     const freelancer = (freelancers as any[])[0];
@@ -165,7 +165,7 @@ export async function PATCH(req: Request) {
       await connection.execute(
         `INSERT INTO gigsy_notifications(user_id,type,title,body,gig_id)
          VALUES(?,'proposal_rejected','Proposal update',?,?)`,
-        [proposal.freelancer_user_id, `Your proposal for â€œ${proposal.title}â€ was not selected. Keep exploring other opportunities.`, gigId]
+        [proposal.freelancer_user_id, `Your proposal for "${proposal.title}" was not selected. Keep exploring other opportunities.`, gigId]
       );
       await connection.commit();
       return NextResponse.json({ success: true, message: "Proposal rejected. The Freelancer has been notified." });
@@ -237,19 +237,19 @@ export async function PATCH(req: Request) {
     await connection.execute("UPDATE gig SET status='In Progress' WHERE gig_id=?", [gigId]);
     await connection.execute(
       `INSERT INTO gigsy_notifications(user_id,type,title,body,gig_id,contract_id)
-       VALUES(?,'proposal_accepted','Congratulations â€” you have been hired!',?,?,?)`,
-      [proposal.freelancer_user_id, `Your proposal for â€œ${proposal.title}â€ was accepted. Your contract is readyâ€”open it to review milestones and contact the client.`, gigId, contractId]
+       VALUES(?,'proposal_accepted','Congratulations! You have been hired.',?,?,?)`,
+      [proposal.freelancer_user_id, `Your proposal for "${proposal.title}" was accepted. Your contract is ready. Open it to review milestones and contact the client.`, gigId, contractId]
     );
     await connection.execute(
       `INSERT INTO gigsy_notifications(user_id,type,title,body,gig_id,contract_id)
        VALUES(?,'contract_created','Your project is now active',?,?,?)`,
-      [user.user_id, `You hired a Freelancer for â€œ${proposal.title}â€. Your contract and milestone plan are ready.`, gigId, contractId]
+      [user.user_id, `You hired a freelancer for "${proposal.title}". Your contract and milestone plan are ready.`, gigId, contractId]
     );
     for (const row of otherRows as any[]) {
       await connection.execute(
         `INSERT INTO gigsy_notifications(user_id,type,title,body,gig_id)
          VALUES(?,'proposal_not_selected','Proposal update',?,?)`,
-        [row.user_id, `The client selected another Freelancer for â€œ${proposal.title}â€.`, gigId]
+        [row.user_id, `The client selected another freelancer for "${proposal.title}".`, gigId]
       );
     }
 
@@ -268,4 +268,5 @@ export async function PATCH(req: Request) {
     connection.release();
   }
 }
+
 

@@ -1,9 +1,9 @@
 ﻿"use client";
 import { useEffect,useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle, UserRound, Clock3, RefreshCw } from "lucide-react";
+import { CheckCircle2, XCircle, Clock3, RefreshCw } from "lucide-react";
 
-type Proposal = {id:number;gigId:number;status:string;bidAmount:number;coverLetter:string;estimatedDays:number;freelancerName:string;headline?:string;rating?:number;contractId?:number|null};
+type Proposal = {id:number;gigId:number;status:string;bidAmount:number;coverLetter:string;estimatedDays:number;freelancerName:string;freelancerUserId?:number;headline?:string;rating?:number;contractId?:number|null};
 
 export function ClientProposalManager({gigId}:{gigId:number}){
  const [rows,setRows]=useState<Proposal[]>([]);
@@ -63,7 +63,15 @@ export function ClientProposalManager({gigId}:{gigId:number}){
   :<div className="applicant-list">
    {rows.map(p=><article className="applicant-card" key={p.id}>
     <div className="applicant-card-head">
-     <div className="applicant-avatar"><UserRound size={20}/></div>
+     <img
+       className="applicant-avatar"
+       src={`/avatars/avatar-${(Math.abs(Number(p.freelancerUserId || p.id)) % 10) + 1}.png`}
+       alt={`${p.freelancerName} profile avatar`}
+       onError={(e) => {
+        e.currentTarget.onerror = null;
+        e.currentTarget.src = "/avatars/avatar-1.png";
+       }}
+      />
      <div className="applicant-person">
       <strong>{p.freelancerName}</strong>
       <span>{p.headline||"Freelancer"}{p.rating?` · ★ ${Number(p.rating).toFixed(1)}`:""}</span>
@@ -98,3 +106,4 @@ export function ClientProposalManager({gigId}:{gigId:number}){
   {notice&&<p className="workflow-notice" role="status">{notice}</p>}
  </section>;
 }
+
