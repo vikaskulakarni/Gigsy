@@ -60,7 +60,7 @@ $indexSecret = (& node -e "console.log(require('crypto').randomBytes(48).toStrin
 $env:MYSQL_PWD = $adminPassword
 try {
   $escapedAppPassword = $appPassword.Replace("'", "''")
-  $bootstrapSql = "CREATE DATABASE IF NOT EXISTS $dbName CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci; CREATE USER IF NOT EXISTS '$appUser'@'localhost' IDENTIFIED BY '$escapedAppPassword'; ALTER USER '$appUser'@'localhost' IDENTIFIED BY '$escapedAppPassword'; GRANT ALL PRIVILEGES ON $dbName.* TO '$appUser'@'localhost';"
+  $bootstrapSql = "CREATE DATABASE IF NOT EXISTS $dbName CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci; CREATE USER IF NOT EXISTS '$appUser'@'localhost' IDENTIFIED BY '$escapedAppPassword'; ALTER USER '$appUser'@'localhost' IDENTIFIED BY '$escapedAppPassword'; GRANT ALL PRIVILEGES ON $dbName.* TO '$appUser'@'localhost'; CREATE USER IF NOT EXISTS '$appUser'@'127.0.0.1' IDENTIFIED BY '$escapedAppPassword'; ALTER USER '$appUser'@'127.0.0.1' IDENTIFIED BY '$escapedAppPassword'; GRANT ALL PRIVILEGES ON $dbName.* TO '$appUser'@'127.0.0.1';"
   & $mysql.Source "--host=$hostName" "--port=$port" "--user=$adminUser" "--execute=$bootstrapSql"
   if ($LASTEXITCODE -ne 0) { throw 'Could not connect to MySQL or create the isolated gigsy_dev database/user. Check the MySQL service and administrator credentials.' }
 
@@ -86,6 +86,10 @@ try {
   if ($parts.Count -ne 4 -or [int]$parts[0] -lt 17 -or [int]$parts[1] -lt 3 -or [int]$parts[2] -lt 1 -or [int]$parts[3] -lt 1) {
     throw "Database verification failed. Expected at least 17 tables, 3 views, 1 trigger and 1 procedure. Actual: $($parts -join '|')."
   }
+
+  $env:MYSQL_PWD = $appPassword
+  & $mysql.Source "--host=$hostName" "--port=$port" "--user=$appUser" "--database=$dbName" "--execute=SELECT 1"
+  if ($LASTEXITCODE -ne 0) { throw 'The generated Gigsy application database credentials could not connect.' }
 } finally {
   Remove-Item Env:MYSQL_PWD -ErrorAction SilentlyContinue
 }
