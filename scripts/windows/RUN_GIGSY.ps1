@@ -50,10 +50,25 @@ if (-not (Test-Path -LiteralPath $envLocal)) {
 
   $pythonExe = Join-Path $Root 'semantic_service\.venv\Scripts\python.exe'
   if (-not (Test-Path $pythonExe)) {
-    $pythonArgs = @('-3.11')
-    & py @pythonArgs --version *> $null
-    if ($LASTEXITCODE -ne 0) { $pythonArgs = @('-3.13'); & py @pythonArgs --version *> $null }
-    if ($LASTEXITCODE -ne 0) { throw 'Python 3.11 or 3.13 is required.' }
+    $installedPython = & py -0p
+    if ($LASTEXITCODE -ne 0) {
+      throw 'Could not query installed Python runtimes using py -0p.'
+    }
+
+    $pythonList = $installedPython -join "`n"
+
+    if ($pythonList -match '(?m)-V:3\.11(?:\s|$)') {
+      $pythonArgs = @('-3.11')
+    }
+    elseif ($pythonList -match '(?m)-V:3\.13(?:\s|$)') {
+      $pythonArgs = @('-3.13')
+    }
+    else {
+      throw 'Python 3.11 or 3.13 is required.'
+    }
+
+    Write-Host "Using Python $(& py @pythonArgs --version)" -ForegroundColor Green
+
     Push-Location (Join-Path $Root 'semantic_service')
     try {
       & py @pythonArgs -m venv .venv

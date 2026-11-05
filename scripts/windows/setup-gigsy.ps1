@@ -28,13 +28,25 @@ if (-not (Get-Command py -ErrorAction SilentlyContinue)) { throw 'Install Python
 $nodeMajor = [int]((node --version).TrimStart('v').Split('.')[0])
 if ($nodeMajor -ne 22) { throw "Gigsy is configured for Node.js 22 LTS; detected $(node --version)." }
 
-$pythonArgs = @('-3.11')
-& py @pythonArgs --version *> $null
+# Detect installed Python runtimes without launching a missing version.
+$installedPython = & py -0p
 if ($LASTEXITCODE -ne 0) {
-  $pythonArgs = @('-3.13')
-  & py @pythonArgs --version *> $null
+    throw 'Could not query installed Python runtimes using py -0p.'
 }
-if ($LASTEXITCODE -ne 0) { throw 'Install Python 3.11 or 3.13 (64-bit) with the py launcher.' }
+
+if (($installedPython -join "`n") -match '(?m)-V:3\.11(?:\s|$)') {
+    $pythonArgs = @('-3.11')
+}
+elseif (($installedPython -join "`n") -match '(?m)-V:3\.13(?:\s|$)') {
+    $pythonArgs = @('-3.13')
+}
+else {
+    throw 'Install Python 3.11 or 3.13 (64-bit) with the Windows py launcher.'
+}
+
+$pythonVersion = & py @pythonArgs --version
+if ($LASTEXITCODE -ne 0) { throw 'Selected Python runtime could not be started.' }
+Write-Host "Using $pythonVersion" -ForegroundColor Green
 
 $mysql = Get-Command mysql.exe -ErrorAction SilentlyContinue
 if (-not $mysql) {
@@ -120,7 +132,7 @@ CHROMA_SERVICE_URL=http://127.0.0.1:8001
 CHROMA_SERVICE_TOKEN=$token
 INDEXING_SECRET=$indexSecret
 "@
-$semanticEnv = @"
+$semanticEnvContent = @"
 # Generated locally by scripts/windows/setup-gigsy.ps1. Do not commit.
 CHROMA_SERVICE_TOKEN=$token
 EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
@@ -128,7 +140,7 @@ CHROMA_PATH=./chroma_data
 CHROMA_COLLECTION=gigsy_gigs
 "@
 [System.IO.File]::WriteAllText($EnvLocal, $rootEnv, [System.Text.UTF8Encoding]::new($false))
-[System.IO.File]::WriteAllText($SemanticEnv, $semanticEnv, [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($SemanticEnv, $semanticEnvContent, [System.Text.UTF8Encoding]::new($false))
 
 Write-Host 'Installing Python semantic-service dependencies...' -ForegroundColor Cyan
 Push-Location $Semantic
