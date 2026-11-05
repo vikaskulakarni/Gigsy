@@ -66,18 +66,31 @@ if (-not (Test-Path -LiteralPath $envLocal)) {
   }
 
   # Repair a missing semantic .env from the matching token in .env.local.
+  $rootTokenLine = Get-Content -LiteralPath $envLocal | Where-Object { $_ -match '^\s*CHROMA_SERVICE_TOKEN\s*=' } | Select-Object -First 1
+  if (-not $rootTokenLine) { throw 'CHROMA_SERVICE_TOKEN is missing from .env.local.' }
+  $rootToken = ($rootTokenLine -split '=', 2)[1].Trim().Trim('"').Trim("'")
+  if (-not $rootToken) { throw 'CHROMA_SERVICE_TOKEN is empty in .env.local.' }
+
   if (-not (Test-Path -LiteralPath $semanticEnv)) {
-    $tokenLine = Get-Content -LiteralPath $envLocal | Where-Object { $_ -match '^\s*CHROMA_SERVICE_TOKEN\s*=' } | Select-Object -First 1
-    if (-not $tokenLine) { throw 'CHROMA_SERVICE_TOKEN is missing from .env.local.' }
-    $token = ($tokenLine -split '=', 2)[1].Trim().Trim('"').Trim("'")
-    if (-not $token) { throw 'CHROMA_SERVICE_TOKEN is empty in .env.local.' }
-    @"
-CHROMA_SERVICE_TOKEN=$token
-EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
-CHROMA_PATH=./chroma_data
-CHROMA_COLLECTION=gigsy_gigs
-"@ | Set-Content -LiteralPath $semanticEnv -Encoding utf8
+    $semanticLines = @(
+      "CHROMA_SERVICE_TOKEN=$rootToken",
+      'EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2',
+      'CHROMA_PATH=./chroma_data',
+      'CHROMA_COLLECTION=gigsy_gigs'
+    )
+  } else {
+    $semanticLines = @(Get-Content -LiteralPath $semanticEnv)
+    $tokenIndex = -1
+    for ($i = 0; $i -lt $semanticLines.Count; $i++) {
+      if ($semanticLines[$i] -match '^\s*CHROMA_SERVICE_TOKEN\s*=') { $tokenIndex = $i; break }
+    }
+    if ($tokenIndex -ge 0) {
+      $semanticLines[$tokenIndex] = "CHROMA_SERVICE_TOKEN=$rootToken"
+    } else {
+      $semanticLines = @("CHROMA_SERVICE_TOKEN=$rootToken") + $semanticLines
+    }
   }
+  [System.IO.File]::WriteAllLines($semanticEnv, [string[]]$semanticLines, [System.Text.UTF8Encoding]::new($false))
 }
 
 if (-not (Test-Path -LiteralPath $envLocal)) { throw 'Missing .env.local after setup.' }
