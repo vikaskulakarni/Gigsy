@@ -13,6 +13,14 @@ if (Test-Path -LiteralPath $EnvLocal) {
 if (-not (Test-Path -LiteralPath $Schema)) {
   throw 'Missing database\bootstrap\gigsy_schema.sql. The repository maintainer must generate and commit the schema-only bootstrap file using export-bootstrap-schema.ps1 before teammates can run fresh setup.'
 }
+$schemaText = Get-Content -LiteralPath $Schema -Raw
+if ($schemaText -match '(?im)^\s*(?:/\*!\d+\s*)?DROP\s+(?:TABLE|VIEW|PROCEDURE|FUNCTION|TRIGGER|EVENT)\b' -or $schemaText -match '(?i)DEFINER\s*=' -or $schemaText -match '(?im)^\s*USE\s+' -or $schemaText -match '(?im)^\s*INSERT\s+INTO\b') {
+  throw 'Bootstrap SQL contains DROP, DEFINER, USE or INSERT statements. Refusing to import an unsafe or data-bearing schema file.'
+}
+if ([regex]::Matches($schemaText, '(?im)^CREATE TABLE `[^\r\n]+`').Count -ne 17) {
+  throw 'Bootstrap SQL must contain exactly 17 CREATE TABLE statements.'
+}
+
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Install Node.js 22 LTS and ensure node.exe is on PATH.' }
 if (-not (Get-Command npm.cmd -ErrorAction SilentlyContinue)) { throw 'npm.cmd was not found. Reinstall Node.js 22 LTS and ensure npm is on PATH.' }
 if (-not (Get-Command py -ErrorAction SilentlyContinue)) { throw 'Install Python 3.11 (64-bit) with the Windows py launcher.' }
