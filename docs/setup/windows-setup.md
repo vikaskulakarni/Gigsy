@@ -1,61 +1,59 @@
 # Windows developer setup
 
+For a completely fresh clone, follow the [Clone and run guide](./clone-and-run.md). It explains prerequisites, the one-time schema bootstrap, first-run database creation and health checks.
+
 ## Prerequisites
 
+- Windows 10/11 and PowerShell.
 - Node.js 22 LTS and npm.
-- Python 3.11 or 3.13 (64-bit) with the `py` launcher.
-- MySQL Server and the existing Gigsy database.
-- PowerShell and internet access for package/model downloads.
+- Python 3.11 (preferred) or 3.13 (64-bit) with the `py` launcher.
+- MySQL Server 8.x.
+- Internet access for package installation and the first embedding-model download.
 
 ## Guided launcher
 
-Run from the repository root:
+From the repository root:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
 .\scripts\windows\RUN_GIGSY.ps1
 ```
 
-The launcher checks local runtimes, creates local environment files when required, installs dependencies, starts the semantic and Next.js services in separate windows, and reports service URLs.
+On a fresh clone, the launcher invokes the setup script. Setup creates an isolated `gigsy_dev` database and a dedicated `gigsy_app` user, imports the checked-in DDL-only bootstrap, generates local secrets, installs dependencies, launches both services and waits for health checks.
+
+If you already have `.env.local`, the launcher preserves it and repairs missing dependencies without replacing your credentials.
 
 ## Explicit setup
-
-One-time setup:
 
 ```powershell
 .\scripts\windows\setup-gigsy.ps1
 ```
 
-Then start the services in separate PowerShell terminals from the repository root:
+Then use the guided launcher to start both services:
 
-**Terminal 1 — semantic service**
 ```powershell
-.\scripts\windows\start-semantic.ps1
+.\scripts\windows\RUN_GIGSY.ps1
 ```
-
-**Terminal 2 — Next.js**
-```powershell
-.\scripts\windows\start-gigsy.ps1
-```
-
-Open http://localhost:3000.
 
 ## Health checks
 
-- Application/MySQL: http://localhost:3000/api/health
-- Semantic service: http://localhost:8001/health
+- Application and MySQL: http://localhost:3000/api/health
+- FastAPI and ChromaDB: http://localhost:8001/health
 
-## Database migration
+Keep both service windows open while using the application. The first semantic indexing/search request may download the embedding model.
 
-Review [hiring workflow](../database/hiring-workflow.md) and the SQL migration before applying. If needed, run from the repository root:
+## Maintainer-only schema export
+
+To refresh the DDL-only bootstrap from the current verified database, use:
 
 ```powershell
-.\scripts\windows\apply-hiring-migration.ps1
+.\scripts\windows\export-bootstrap-schema.ps1
 ```
 
-## Important
+Review and commit the generated `database/bootstrap/gigsy_schema.sql`. This export contains no application data and must only be imported into a new, empty development database.
 
-- Keep `.env.local` and `semantic_service/.env` private.
-- Do not delete or recreate the existing database.
-- Keep both service windows open while using the app.
-- First semantic-service startup downloads the embedding model.
+## Security
+
+- Never commit `.env.local` or `semantic_service/.env`.
+- Do not share MySQL administrator passwords or generated service secrets.
+- Do not import the bootstrap into an existing populated database.
