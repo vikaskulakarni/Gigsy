@@ -100,6 +100,12 @@ try {
   if ($viewCount -ne 3 -or -not $hasTrigger -or -not $hasProcedure) {
     throw "Expected 3 views, 1 trigger and 1 stored procedure. Found views=$viewCount, trigger=$hasTrigger, procedure=$hasProcedure. The output was not saved."
   }
+  if ($sql -notmatch '(?is)CREATE TABLE `review`.*?`contract_id`\s+int\s+DEFAULT NULL.*?`gigsy_contract_id`\s+bigint\s+DEFAULT NULL') {
+    throw 'The current review table does not contain the expected nullable legacy contract_id and BIGINT gigsy_contract_id. Update the live database before exporting.'
+  }
+  if ($sql -notmatch '(?is)CREATE TABLE `gigsy_contracts`.*?`contract_id`\s+bigint' -or $sql -notmatch '(?is)CREATE TABLE `contract`.*?`contract_id`\s+int') {
+    throw 'The legacy INT contract and newer BIGINT Gigsy contract identifier types were not both found.'
+  }
   if ($sql -match '(?im)^\s*INSERT\s+INTO\b') {
     throw 'The export unexpectedly contains INSERT statements. Refusing to write a file containing data.'
   }
