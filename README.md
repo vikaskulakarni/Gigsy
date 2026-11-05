@@ -44,7 +44,7 @@ Gigsy/
 
 ## Quick start (Windows)
 
-**Prerequisites:** Node.js 22 LTS, Python 3.11 or 3.13 (64-bit), MySQL Server and the configured Gigsy database.
+**Prerequisites:** Windows 10/11, Node.js 22 LTS, Python 3.11 or 3.13 (64-bit), and MySQL Server 8.x. The first-run setup creates an isolated local `gigsy_dev` database from the repository's schema-only bootstrap.
 
 From the repository root, run:
 
@@ -53,7 +53,7 @@ Set-ExecutionPolicy -Scope Process Bypass -Force
 .\scripts\windows\RUN_GIGSY.ps1
 ```
 
-For explicit setup and troubleshooting, see [Windows setup](docs/setup/windows-setup.md).
+For the complete clean-clone workflow and database bootstrap details, see [Clone and run](docs/setup/clone-and-run.md) and [Windows setup](docs/setup/windows-setup.md).
 
 The launcher creates local environment files only when setup is needed. Never commit `.env.local` or `semantic_service/.env`.
 
@@ -86,6 +86,7 @@ The DBMS mini-project report is available in both formats:
 
 - [Architecture](docs/architecture/architecture.md)
 - [Backend and API](docs/architecture/backend-and-api.md)
+- [Clone and run](docs/setup/clone-and-run.md)
 - [Windows setup](docs/setup/windows-setup.md)
 - [Semantic search](docs/setup/semantic-search.md)
 - [Hiring workflow](docs/database/hiring-workflow.md)
@@ -112,7 +113,7 @@ GitHub Actions currently performs the TypeScript check. Local database, authenti
 
 ## Database safety
 
-Review migrations before applying them. Do not recreate or drop an existing database. Use a backup and a separate test database for experiments. The schema-only export is documentation, not a migration.
+Fresh teammate setup imports `database/bootstrap/gigsy_schema.sql` only into a newly created empty `gigsy_dev` database. The export is DDL-only and contains no application rows. Never import it into a populated database. Existing databases are not dropped or overwritten.
 
 ## Security
 
