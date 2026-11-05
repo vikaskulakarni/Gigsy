@@ -92,3 +92,47 @@ FROM gigsy_notifications WHERE user_id=1 ORDER BY created_at DESC;
 -- DELETE FROM message WHERE message_id=<verified_test_message_id>;
 -- SELECT ROW_COUNT() AS affected_rows;
 -- ROLLBACK;
+
+
+-- 19. Client-wise gig count, including clients with no gigs.
+SELECT c.client_id,u.name AS client_name,
+       COUNT(g.gig_id) AS total_gigs
+FROM client c
+JOIN users u ON u.user_id=c.user_id
+LEFT JOIN gig g ON g.client_id=c.client_id
+GROUP BY c.client_id,u.name
+ORDER BY total_gigs DESC;
+
+-- 20. Gigs that have not received any proposals.
+SELECT g.gig_id,g.title,g.status
+FROM gig g
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM proposal p
+    WHERE p.gig_id=g.gig_id
+);
+
+-- 21. Freelancers who have submitted more than one proposal.
+SELECT f.freelancer_id,u.name,
+       COUNT(p.proposal_id) AS total_proposals
+FROM freelancer f
+JOIN users u ON u.user_id=f.user_id
+JOIN proposal p ON p.freelancer_id=f.freelancer_id
+GROUP BY f.freelancer_id,u.name
+HAVING COUNT(p.proposal_id)>1
+ORDER BY total_proposals DESC;
+
+-- 22. Number of freelancers available for each skill.
+SELECT s.skill_id,s.skill_name,
+       COUNT(DISTINCT fs.freelancer_id) AS freelancer_count
+FROM skill s
+LEFT JOIN freelancer_skill fs ON fs.skill_id=s.skill_id
+GROUP BY s.skill_id,s.skill_name
+ORDER BY freelancer_count DESC;
+
+-- 23. Proposal distribution by status.
+SELECT status,COUNT(*) AS proposal_count
+FROM proposal
+GROUP BY status
+ORDER BY proposal_count DESC;
+
