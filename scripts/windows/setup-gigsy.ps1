@@ -95,6 +95,12 @@ try {
     throw "Database verification failed. Expected at least 17 tables, 3 views, 1 trigger and 1 procedure. Actual: $($parts -join '|')."
   }
 
+  $schemaCheckSql = "SELECT CONCAT((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='$dbName' AND table_name='review' AND column_name='gigsy_contract_id' AND data_type='bigint'),'|',(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='$dbName' AND table_name='review' AND column_name='contract_id' AND is_nullable='YES'),'|',(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='$dbName' AND table_name='gigsy_contracts' AND column_name='contract_id' AND data_type='bigint'),'|',(SELECT COUNT(*) FROM information_schema.columns WHERE table_schema='$dbName' AND table_name='contract' AND column_name='contract_id' AND data_type='int'));"
+  $schemaCheck = & $mysql.Source "--host=$hostName" "--port=$port" "--user=$adminUser" "--batch" "--skip-column-names" "--execute=$schemaCheckSql"
+  if ($LASTEXITCODE -ne 0 -or (($schemaCheck | Select-Object -Last 1).ToString().Trim() -ne '1|1|1|1')) {
+    throw 'Database contract-ID schema check failed. Expected nullable review.contract_id INT, review.gigsy_contract_id BIGINT, gigsy_contracts.contract_id BIGINT and contract.contract_id INT.'
+  }
+
   $env:MYSQL_PWD = $appPassword
   & $mysql.Source "--host=$hostName" "--port=$port" "--user=$appUser" "--database=$dbName" "--execute=SELECT 1"
   if ($LASTEXITCODE -ne 0) { throw 'The generated Gigsy application database credentials could not connect.' }
