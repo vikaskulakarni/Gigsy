@@ -37,3 +37,9 @@ Thumbs.db
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Gigsy temporary backups and generated verification output
+*.demo-backup
+*.encoding-backup
+*.encoding-backup-*
+artifacts/verification/
