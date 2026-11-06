@@ -34,3 +34,12 @@ gigsy-build-audit.txt
 .DS_Store
 Thumbs.db
 .vscode/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Gigsy temporary backups and generated verification output
+*.demo-backup
+*.encoding-backup
+*.encoding-backup-*
+artifacts/verification/
