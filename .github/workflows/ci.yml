@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  typecheck:
-    name: TypeScript typecheck
+  web:
+    name: Web typecheck and production build
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -32,3 +32,21 @@ jobs:
 
       - name: Run TypeScript checks
         run: npx tsc --noEmit
+
+      - name: Build production application
+        run: npm run build
+
+  semantic-service:
+    name: Python semantic-service syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile semantic service
+        run: python -m compileall -q semantic_service/app

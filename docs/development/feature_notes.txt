@@ -1,0 +1,32 @@
+GIGSY - FEATURE NOTES
+
+1. USER MANAGEMENT
+- Separate client and freelancer roles.
+- User authentication and dashboard access.
+
+2. GIG MANAGEMENT
+- Clients can publish gigs.
+- Gigs include title, description, budget and deadline.
+- Required skills can be associated with gigs.
+
+3. FREELANCER WORKFLOW
+- Freelancers can explore available gigs.
+- Freelancers can submit proposals.
+- Clients can review and accept proposals.
+
+4. CONTRACT MANAGEMENT
+- Contracts are created after proposal acceptance.
+- Contracts contain multiple milestones.
+- Milestone submission and approval are supported.
+
+5. COMMUNICATION
+- Clients and freelancers can exchange messages.
+
+6. DATABASE
+- MySQL database.
+- Stored procedure for freelancer skill matching.
+- Database views for freelancer and gig information.
+- Review rating trigger.
+
+NOTE
+These notes describe the features inspected or exercised during project testing. They do not imply that every possible scenario has been tested.
